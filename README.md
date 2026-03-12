@@ -1,14 +1,14 @@
-SECURITY TOOLS SUITE
+# SECURITY TOOLS SUITE
 Version: 3.0
 Python: 3.6+
 Author: Rodrigo Gomes
 
-LEGAL DISCLAIMER
+## LEGAL DISCLAIMER
 THIS TOOL IS FOR EDUCATIONAL PURPOSES AND AUTHORIZED SECURITY TESTING ONLY.
 
 UNAUTHORIZED USE OF THIS TOOL ON SYSTEMS YOU DO NOT OWN OR WITHOUT EXPLICIT PERMISSION IS ILLEGAL AND UNETHICAL. THE USER IS SOLELY RESPONSIBLE FOR ENSURING THEY HAVE PERMISSION TO TEST THEIR TARGETS.
 
-TABLE OF CONTENTS
+### TABLE OF CONTENTS
 About
 
 Features
@@ -37,10 +37,10 @@ Resources
 
 Support
 
-ABOUT
+## ABOUT
 The Security Tools Suite is a comprehensive security testing framework written in Python. It combines multiple common web application auditing and reconnaissance tools into a single, menu-driven interface. This project was created as a learning tool to understand various web vulnerabilities and penetration testing techniques.
 
-FEATURES
+## FEATURES
 The suite includes 11 core tools:
 
 Port Scanner - Multi-threaded TCP port scanning with service detection.
@@ -65,27 +65,32 @@ Full Report - Runs all tools sequentially and generates a consolidated JSON repo
 
 Settings - Configure global target, User-Agent, and session cookies.
 
-INSTALLATION
+## INSTALLATION
+
 Prerequisites
+
 Python 3.6 or higher
 
 pip (Python package installer)
 
-Steps
+## Steps
+
 Clone the repository
 
-bash
 git clone https://github.com/your-username/security-tools-suite.git
+
 cd security-tools-suite
+
 Install dependencies
 
-bash
 pip install requests beautifulsoup4 urllib3
+
 Run the tool
 
-bash
 python3 security_suite.py
-QUICK START GUIDE
+
+## QUICK START GUIDE
+
 Launch the tool: python3 security_suite.py
 
 Confirm the legal warning by typing 'y' when prompted.
@@ -98,8 +103,10 @@ Configure any tool-specific options (like port ranges or thread counts) when ask
 
 Review the results displayed in the terminal. A JSON report will also be saved automatically.
 
-DETAILED TOOL DOCUMENTATION
+## DETAILED TOOL DOCUMENTATION
+
 1. Port Scanner
+
 Description: Scans a range of TCP ports on a target IP or domain to find open ports and identify running services.
 
 Configuration: Port range (start-end), number of threads, connection timeout.
@@ -107,20 +114,25 @@ Configuration: Port range (start-end), number of threads, connection timeout.
 Output: List of open ports with their guessed service names. Saves a report with target IP and scan duration.
 
 2. Directory Bruteforcer
+
 Description: Attempts to discover hidden web directories and files by requesting common paths from a built-in wordlist. It also tests for files with various extensions.
+
 
 Configuration: Number of threads, file extensions to test (e.g., php, asp, txt).
 
 Output: List of discovered URLs with their HTTP status codes and any redirect locations.
 
 3. Subdomain Enumerator
-Description: Tries to find subdomains for a given domain by prepending common words (e.g., 'www', 'mail', 'admin') and checking if they resolve via DNS. It also attempts a basic HTTP connection to see if the subdomain is live.
+
+Description: Tries to find subdomains for a given domain by prepending common words (e.g., 'www', 'mail', 'admin') and checking if they resolve via DNS. It also attempts a basic HTTP connection 
+to see if the subdomain is live.
 
 Configuration: Number of threads.
 
 Output: List of found subdomains and their resolved IP addresses.
 
 4. XSS Vulnerability Scanner
+
 Description: Injects common XSS payloads into forms and URL parameters of the target page. It then checks if the payload is reflected in the server's response.
 
 Requirement: BeautifulSoup4 must be installed.
@@ -143,7 +155,8 @@ Description: Attempts to identify if a Web Application Firewall is protecting th
 Output: Name of the detected WAF (e.g., Cloudflare, AWS WAF) or a message indicating no WAF was clearly identified.
 
 8. SSL/TLS Checker
-Description: Connects to the target over HTTPS, retrieves the SSL certificate, and displays detailed information. This includes the issuer, subject, validity period, days until expiration, Subject Alternative Names (SANs), TLS version, and the cipher suite in use.
+Description: Connects to the target over HTTPS, retrieves the SSL certificate, and displays detailed information. This includes the issuer, subject, validity period, days until expiration, 
+Subject Alternative Names (SANs), TLS version, and the cipher suite in use.
 
 Output: A detailed breakdown of the SSL/TLS configuration.
 
@@ -165,7 +178,6 @@ Output: A single JSON file containing the results from all the executed tools, p
 Description: Allows you to configure global settings for the current session.
 
 Options:
-
 Set or change the global target.
 
 Change the User-Agent string used in HTTP requests.
@@ -174,14 +186,14 @@ Add a session cookie (e.g., PHPSESSID=value).
 
 Check which Python dependencies are installed.
 
-CONFIGURATION
+## CONFIGURATION
 The suite can be configured in two ways:
 
 Per-Tool Prompts: Most tools will ask you for specific parameters (e.g., port range, thread count) when you run them.
 
 Global Settings (Option 11): You can set a persistent target, User-Agent, or session cookie that will be used across all tools for the duration of the session.
 
-OUTPUT & REPORTS
+## OUTPUT & REPORTS
 All scan results are saved automatically in the current working directory.
 
 Format: JSON
@@ -189,15 +201,19 @@ Format: JSON
 Naming Convention: {tool_name}_{YYYYMMDD_HHMMSS}.json
 
 Example: port_scan_20231027_143022.json
-
 The JSON report contains metadata about the scan (tool, target, timestamp) and the specific results from the tool.
 
-DEPENDENCIES
+## DEPENDENCIES
 Library	Required For	Installation Command
+
 requests	All HTTP-based tools (2-7, 9, 10)	pip install requests
+
 beautifulsoup4	XSS Scanner, Web Crawler (optional tools)	pip install beautifulsoup4
+
 urllib3	Used by requests for HTTP/SSL handling	(Installed with requests)
+
 LIMITATIONS
+
 Speed: The multi-threading is basic and may not be as fast as professional tools like Nmap or ffuf.
 
 Wordlists: The built-in wordlists for directories and subdomains are relatively small and intended for educational use.
@@ -206,8 +222,9 @@ False Positives: The XSS and SQLi scanners may produce false positives. Manual v
 
 Rate Limiting: The tool does not implement rate limiting, which could trigger WAF blocks or DoS protections on the target site.
 
-CUSTOMIZATION
+## CUSTOMIZATION
 Adding Your Own Wordlists
+
 You can easily replace the built-in wordlists in the code:
 
 For Directory Bruteforcer: Modify the wordlist list inside the directory_bruteforcer function.
@@ -215,14 +232,17 @@ For Directory Bruteforcer: Modify the wordlist list inside the directory_brutefo
 For Subdomain Enumerator: Modify the subdomains list inside the subdomain_enumerator function.
 
 Modifying Payloads
+
 XSS Payloads: Edit the payloads list in the xss_scanner function.
 
 SQLi Payloads: Edit the payloads list in the sql_tester function.
 
 Changing HTTP Headers
+
 Use the Settings menu (option 11) to change the User-Agent or add cookies for authenticated scanning.
 
-CONTRIBUTING
+# CONTRIBUTING
+
 Contributions are welcome. Areas for improvement include:
 
 Adding more comprehensive and varied payloads for XSS and SQLi.
@@ -239,10 +259,11 @@ Enhancing documentation.
 
 To contribute, please fork the repository, make your changes, and submit a pull request.
 
-LICENSE
+## LICENSE
+
 This project is licensed under the MIT License. See the LICENSE file for more details.
 
-RESOURCES
+## RESOURCES
 To learn more about web security:
 
 OWASP Top 10
@@ -253,7 +274,7 @@ Hack The Box
 
 TryHackMe
 
-SUPPORT
+## SUPPORT
 For questions, suggestions, or to report bugs:
 
 Open an issue on the GitHub repository.
