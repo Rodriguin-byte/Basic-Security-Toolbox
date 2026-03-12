@@ -79,18 +79,18 @@ class SecuritySuite:
 {Colors.BOLD}{Colors.HEADER}MENU PRINCIPAL{Colors.END}
 {Colors.BLUE}════════════════════════════════════════════════════════{Colors.END}
 
-{Colors.GREEN}1.{Colors.END} 🔍 Port Scanner Profissional
-{Colors.GREEN}2.{Colors.END} 📁 Directory Bruteforcer
-{Colors.GREEN}3.{Colors.END} 🌐 Subdomain Enumerator
-{Colors.GREEN}4.{Colors.END} ⚠️  XSS Vulnerability Scanner
-{Colors.GREEN}5.{Colors.END} 💉 SQL Injection Tester
-{Colors.GREEN}6.{Colors.END} 🛡️  Security Headers Analyzer
-{Colors.GREEN}7.{Colors.END} 🔥 WAF Detector
-{Colors.GREEN}8.{Colors.END} 🔒 SSL/TLS Checker
-{Colors.GREEN}9.{Colors.END} 🕷️  Web Crawler
-{Colors.GREEN}10.{Colors.END} 📊 Relatório Completo (todas as ferramentas)
-{Colors.GREEN}11.{Colors.END} ⚙️  Configurações
-{Colors.GREEN}0.{Colors.END} 🚪 Sair
+{Colors.GREEN}1.{Colors.END}  Port Scanner Profissional
+{Colors.GREEN}2.{Colors.END}  Directory Bruteforcer
+{Colors.GREEN}3.{Colors.END}  Subdomain Enumerator
+{Colors.GREEN}4.{Colors.END}   XSS Vulnerability Scanner
+{Colors.GREEN}5.{Colors.END}  SQL Injection Tester
+{Colors.GREEN}6.{Colors.END}   Security Headers Analyzer
+{Colors.GREEN}7.{Colors.END}  WAF Detector
+{Colors.GREEN}8.{Colors.END}  SSL/TLS Checker
+{Colors.GREEN}9.{Colors.END}   Web Crawler
+{Colors.GREEN}10.{Colors.END}  Relatório Completo (todas as ferramentas)
+{Colors.GREEN}11.{Colors.END}   Configurações
+{Colors.GREEN}0.{Colors.END}  Sair
 
 {Colors.YELLOW}Escolhe uma opção (0-11): {Colors.END}"""
         return menu
@@ -238,7 +238,7 @@ class SecuritySuite:
     def directory_bruteforcer(self):
         """Directory Bruteforcer Profissional"""
         self.clear_screen()
-        print(f"{Colors.BOLD}{Colors.HEADER}📁 DIRECTORY BRUTEFORCER{Colors.END}")
+        print(f"{Colors.BOLD}{Colors.HEADER} DIRECTORY BRUTEFORCER{Colors.END}")
         print(f"{Colors.BLUE}{'='*60}{Colors.END}\n")
         
         target = self.get_target()
@@ -314,7 +314,7 @@ class SecuritySuite:
     def subdomain_enumerator(self):
         """Subdomain Enumerator Profissional"""
         self.clear_screen()
-        print(f"{Colors.BOLD}{Colors.HEADER}🌐 SUBDOMAIN ENUMERATOR{Colors.END}")
+        print(f"{Colors.BOLD}{Colors.HEADER} SUBDOMAIN ENUMERATOR{Colors.END}")
         print(f"{Colors.BLUE}{'='*60}{Colors.END}\n")
         
         domain = input("Domínio alvo (ex: exemplo.com): ").strip()
@@ -376,7 +376,7 @@ class SecuritySuite:
     def xss_scanner(self):
         """XSS Vulnerability Scanner"""
         self.clear_screen()
-        print(f"{Colors.BOLD}{Colors.HEADER}⚠️  XSS VULNERABILITY SCANNER{Colors.END}")
+        print(f"{Colors.BOLD}{Colors.HEADER}  XSS VULNERABILITY SCANNER{Colors.END}")
         print(f"{Colors.BLUE}{'='*60}{Colors.END}\n")
         
         if not BS4_AVAILABLE:
@@ -574,7 +574,7 @@ class SecuritySuite:
     def security_headers(self):
         """Security Headers Analyzer"""
         self.clear_screen()
-        print(f"{Colors.BOLD}{Colors.HEADER}🛡️  SECURITY HEADERS ANALYZER{Colors.END}")
+        print(f"{Colors.BOLD}{Colors.HEADER}  SECURITY HEADERS ANALYZER{Colors.END}")
         print(f"{Colors.BLUE}{'='*60}{Colors.END}\n")
         
         target = self.get_target()
@@ -631,7 +631,7 @@ class SecuritySuite:
     def waf_detector(self):
         """WAF Detector"""
         self.clear_screen()
-        print(f"{Colors.BOLD}{Colors.HEADER}🔥 WAF DETECTOR{Colors.END}")
+        print(f"{Colors.BOLD}{Colors.HEADER} WAF DETECTOR{Colors.END}")
         print(f"{Colors.BLUE}{'='*60}{Colors.END}\n")
         
         target = self.get_target()
@@ -699,7 +699,7 @@ class SecuritySuite:
     def ssl_checker(self):
         """SSL/TLS Checker"""
         self.clear_screen()
-        print(f"{Colors.BOLD}{Colors.HEADER}🔒 SSL/TLS CHECKER{Colors.END}")
+        print(f"{Colors.BOLD}{Colors.HEADER} SSL/TLS CHECKER{Colors.END}")
         print(f"{Colors.BLUE}{'='*60}{Colors.END}\n")
         
         target = self.get_target()
@@ -753,7 +753,7 @@ class SecuritySuite:
                     print(f"  Cipher: {ssock.cipher()[0]}")
                     
                     if days_left < 30:
-                        print(f"\n{Colors.YELLOW}⚠️  Certificado expira em breve!{Colors.END}")
+                        print(f"\n{Colors.YELLOW}  Certificado expira em breve!{Colors.END}")
                     
                     # Guardar resultados
                     self.save_report('ssl_checker', {
@@ -779,7 +779,7 @@ class SecuritySuite:
     def web_crawler(self):
         """Web Crawler"""
         self.clear_screen()
-        print(f"{Colors.BOLD}{Colors.HEADER}🕷️  WEB CRAWLER{Colors.END}")
+        print(f"{Colors.BOLD}{Colors.HEADER}  WEB CRAWLER{Colors.END}")
         print(f"{Colors.BLUE}{'='*60}{Colors.END}\n")
         
         if not BS4_AVAILABLE:
