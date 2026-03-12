@@ -1,0 +1,1092 @@
+#!/usr/bin/env python3
+"""
+SECURITY TOOLS SUITE - ALL IN ONE
+Ferramentas completas de segurança para testes em blogs/sites
+Autor: Cybersecurity Student
+Versão: 3.0
+"""
+
+import os
+import sys
+import socket
+import requests
+import urllib3
+import threading
+import ipaddress
+import argparse
+import time
+import json
+import re
+from datetime import datetime
+from urllib.parse import urljoin, urlparse, quote_plus
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import platform
+
+# Desabilitar warnings de SSL
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# Tentar importar BeautifulSoup (opcional)
+try:
+    from bs4 import BeautifulSoup
+    BS4_AVAILABLE = True
+except ImportError:
+    BS4_AVAILABLE = False
+
+# Cores para terminal
+class Colors:
+    HEADER = '\033[95m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    END = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+class SecuritySuite:
+    def __init__(self):
+        self.target = ""
+        self.target_ip = ""
+        self.results = {}
+        self.start_time = None
+        self.end_time = None
+        self.session = requests.Session()
+        self.session.headers.update({
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        })
+        
+    # ==================== FUNÇÕES AUXILIARES ====================
+    
+    def clear_screen(self):
+        """Limpa o terminal"""
+        os.system('cls' if os.name == 'nt' else 'clear')
+    
+    def print_banner(self):
+        """Imprime banner principal"""
+        banner = f"""
+{Colors.RED}{Colors.BOLD}
+╔════════════════════════════════════════════════════════════════╗
+║                    SECURITY TOOLS SUITE v3.0                   ║
+║              Complete Security Testing Framework                ║
+║                    Cybersecurity Student                        ║
+╚════════════════════════════════════════════════════════════════╝
+{Colors.END}
+        """
+        print(banner)
+    
+    def print_menu(self):
+        """Imprime menu principal"""
+        menu = f"""
+{Colors.BOLD}{Colors.HEADER}MENU PRINCIPAL{Colors.END}
+{Colors.BLUE}════════════════════════════════════════════════════════{Colors.END}
+
+{Colors.GREEN}1.{Colors.END} 🔍 Port Scanner Profissional
+{Colors.GREEN}2.{Colors.END} 📁 Directory Bruteforcer
+{Colors.GREEN}3.{Colors.END} 🌐 Subdomain Enumerator
+{Colors.GREEN}4.{Colors.END} ⚠️  XSS Vulnerability Scanner
+{Colors.GREEN}5.{Colors.END} 💉 SQL Injection Tester
+{Colors.GREEN}6.{Colors.END} 🛡️  Security Headers Analyzer
+{Colors.GREEN}7.{Colors.END} 🔥 WAF Detector
+{Colors.GREEN}8.{Colors.END} 🔒 SSL/TLS Checker
+{Colors.GREEN}9.{Colors.END} 🕷️  Web Crawler
+{Colors.GREEN}10.{Colors.END} 📊 Relatório Completo (todas as ferramentas)
+{Colors.GREEN}11.{Colors.END} ⚙️  Configurações
+{Colors.GREEN}0.{Colors.END} 🚪 Sair
+
+{Colors.YELLOW}Escolhe uma opção (0-11): {Colors.END}"""
+        return menu
+    
+    def get_target(self):
+        """Obtém e valida o alvo"""
+        if not self.target:
+            self.target = input(f"{Colors.BOLD}URL ou IP alvo: {Colors.END}").strip()
+            
+            # Adicionar protocolo se necessário
+            if not self.target.startswith(('http://', 'https://')) and not self.is_ip(self.target):
+                self.target = 'http://' + self.target
+                print(f"{Colors.YELLOW}[!] Protocolo adicionado: {self.target}{Colors.END}")
+        
+        return self.target
+    
+    def is_ip(self, value):
+        """Verifica se é um IP válido"""
+        try:
+            ipaddress.ip_address(value)
+            return True
+        except:
+            return False
+    
+    def resolve_target(self):
+        """Resolve domínio para IP"""
+        if self.is_ip(self.target):
+            self.target_ip = self.target
+            return self.target_ip
+        
+        try:
+            self.target_ip = socket.gethostbyname(self.target.replace('http://', '').replace('https://', ''))
+            print(f"{Colors.GREEN}[+] Domínio resolvido: {self.target_ip}{Colors.END}")
+            return self.target_ip
+        except:
+            print(f"{Colors.RED}[-] Erro ao resolver domínio{Colors.END}")
+            return None
+    
+    def save_report(self, tool_name, data):
+        """Guarda relatório em JSON"""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{tool_name}_{timestamp}.json"
+        
+        report = {
+            'tool': tool_name,
+            'target': self.target,
+            'timestamp': timestamp,
+            'data': data
+        }
+        
+        with open(filename, 'w', encoding='utf-8') as f:
+            json.dump(report, f, indent=2, ensure_ascii=False)
+        
+        print(f"{Colors.GREEN}[+] Relatório guardado: {filename}{Colors.END}")
+        return filename
+    
+    def wait_for_enter(self):
+        """Aguarda Enter para continuar"""
+        input(f"\n{Colors.YELLOW}Pressiona Enter para continuar...{Colors.END}")
+    # ==================== 1. PORT SCANNER ====================
+    
+    def port_scanner(self):
+        """Port Scanner Profissional"""
+        self.clear_screen()
+        print(f"{Colors.BOLD}{Colors.HEADER}🔍 PORT SCANNER PROFISSIONAL{Colors.END}")
+        print(f"{Colors.BLUE}{'='*60}{Colors.END}\n")
+        
+        target = self.get_target()
+        self.resolve_target()
+        
+        if not self.target_ip:
+            input("Pressiona Enter para continuar...")
+            return
+        
+        print(f"\n{Colors.BOLD}Configuração do Scan:{Colors.END}")
+        
+        try:
+            start_port = int(input("Porta inicial [1]: ") or "1")
+            end_port = int(input("Porta final [1024]: ") or "1024")
+            threads = int(input("Número de threads [100]: ") or "100")
+            timeout = int(input("Timeout (segundos) [2]: ") or "2")
+        except ValueError:
+            print(f"{Colors.RED}[-] Valores inválidos. Usando valores padrão.{Colors.END}")
+            start_port, end_port, threads, timeout = 1, 1024, 100, 2
+        
+        print(f"\n{Colors.BOLD}A iniciar scan em {self.target_ip}...{Colors.END}")
+        print(f"Portas: {start_port}-{end_port}")
+        print(f"Threads: {threads}")
+        print()
+        
+        open_ports = []
+        services = {}
+        
+        def scan_port(port):
+            try:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.settimeout(timeout)
+                result = sock.connect_ex((self.target_ip, port))
+                if result == 0:
+                    try:
+                        service = socket.getservbyport(port)
+                    except:
+                        service = "unknown"
+                    
+                    with threading.Lock():
+                        open_ports.append(port)
+                        services[port] = service
+                    
+                    print(f"{Colors.GREEN}[ABERTA]{Colors.END} Porta {port} - {service}")
+                sock.close()
+            except:
+                pass
+        
+        start_time = time.time()
+        
+        with ThreadPoolExecutor(max_workers=threads) as executor:
+            futures = [executor.submit(scan_port, port) for port in range(start_port, end_port + 1)]
+            for future in as_completed(futures):
+                pass
+        
+        end_time = time.time()
+        duration = end_time - start_time
+        
+        print(f"\n{Colors.BOLD}{Colors.GREEN}SCAN COMPLETO!{Colors.END}")
+        print(f"Portas abertas encontradas: {len(open_ports)}")
+        print(f"Tempo total: {duration:.2f} segundos")
+        
+        if open_ports:
+            print(f"\n{Colors.BOLD}Resumo:{Colors.END}")
+            for port in sorted(open_ports):
+                print(f"  {Colors.GREEN}{port}{Colors.END}/tcp - {services.get(port, 'unknown')}")
+        
+        # Guardar resultados
+        self.save_report('port_scan', {
+            'target_ip': self.target_ip,
+            'start_port': start_port,
+            'end_port': end_port,
+            'open_ports': [{'port': p, 'service': services.get(p)} for p in sorted(open_ports)],
+            'duration': duration
+        })
+        
+        self.wait_for_enter()
+    # ==================== 2. DIRECTORY BRUTEFORCER ====================
+    
+    def directory_bruteforcer(self):
+        """Directory Bruteforcer Profissional"""
+        self.clear_screen()
+        print(f"{Colors.BOLD}{Colors.HEADER}📁 DIRECTORY BRUTEFORCER{Colors.END}")
+        print(f"{Colors.BLUE}{'='*60}{Colors.END}\n")
+        
+        target = self.get_target()
+        
+        # Wordlist padrão
+        wordlist = [
+            'admin', 'backup', 'config', 'css', 'js', 'images', 'uploads',
+            'wp-admin', 'wp-content', 'wp-includes', 'includes', 'temp',
+            'logs', 'test', 'dev', 'api', 'v1', 'v2', 'phpinfo', 'info',
+            'login', 'signin', 'register', 'user', 'users', 'profile',
+            'database', 'db', 'sql', 'mysql', 'php', 'html', 'htaccess',
+            '.git', '.env', 'robots.txt', 'sitemap.xml', 'crossdomain.xml'
+        ]
+        
+        print(f"{Colors.BOLD}Configuração:{Colors.END}")
+        threads = int(input("Número de threads [20]: ") or "20")
+        
+        # Extensões comuns
+        extensions_input = input("Extensões para testar (separadas por vírgula) [php,asp,txt,bak]: ").strip()
+        if extensions_input:
+            extensions = [e.strip() for e in extensions_input.split(',')]
+        else:
+            extensions = ['php', 'asp', 'txt', 'bak', 'old', 'zip', 'tar', 'gz']
+        
+        print(f"\n{Colors.BOLD}A iniciar brute force em {target}...{Colors.END}")
+        print(f"Palavras: {len(wordlist)}")
+        print(f"Extensões: {', '.join(extensions)}")
+        print()
+        
+        found_urls = []
+        
+        def check_url(path):
+            url = urljoin(target, path)
+            try:
+                response = self.session.get(url, timeout=5, verify=False, allow_redirects=False)
+                
+                if response.status_code == 200:
+                    print(f"{Colors.GREEN}[200]{Colors.END} {url}")
+                    found_urls.append({'url': url, 'status': 200, 'type': 'file' if '.' in path else 'dir'})
+                elif response.status_code in [301, 302, 303]:
+                    location = response.headers.get('Location', '')
+                    print(f"{Colors.YELLOW}[{response.status_code}]{Colors.END} {url} -> {location}")
+                    found_urls.append({'url': url, 'status': response.status_code, 'redirect': location})
+                elif response.status_code in [401, 403]:
+                    print(f"{Colors.YELLOW}[{response.status_code}]{Colors.END} {url} (Acesso negado)")
+                    found_urls.append({'url': url, 'status': response.status_code, 'type': 'restricted'})
+            except:
+                pass
+        
+        # Testar diretórios
+        with ThreadPoolExecutor(max_workers=threads) as executor:
+            futures = []
+            for word in wordlist:
+                futures.append(executor.submit(check_url, word))
+                for ext in extensions:
+                    futures.append(executor.submit(check_url, f"{word}.{ext}"))
+            
+            for future in as_completed(futures):
+                pass
+        
+        print(f"\n{Colors.BOLD}{Colors.GREEN}BRUTE FORCE COMPLETO!{Colors.END}")
+        print(f"URLs encontradas: {len(found_urls)}")
+        
+        # Guardar resultados
+        self.save_report('dir_bruteforce', {
+            'target': target,
+            'urls_found': found_urls
+        })
+        
+        self.wait_for_enter()
+    # ==================== 3. SUBDOMAIN ENUMERATOR ====================
+    
+    def subdomain_enumerator(self):
+        """Subdomain Enumerator Profissional"""
+        self.clear_screen()
+        print(f"{Colors.BOLD}{Colors.HEADER}🌐 SUBDOMAIN ENUMERATOR{Colors.END}")
+        print(f"{Colors.BLUE}{'='*60}{Colors.END}\n")
+        
+        domain = input("Domínio alvo (ex: exemplo.com): ").strip()
+        
+        # Wordlist de subdomínios
+        subdomains = [
+            'www', 'mail', 'ftp', 'localhost', 'webmail', 'smtp', 'pop', 'ns1',
+            'ns2', 'cpanel', 'whm', 'autodiscover', 'autoconfig', 'm', 'imap',
+            'test', 'blog', 'dev', 'admin', 'forum', 'news', 'vpn', 'mx',
+            'support', 'mobile', 'static', 'docs', 'beta', 'shop', 'sql',
+            'secure', 'demo', 'cp', 'calendar', 'wiki', 'web', 'media',
+            'email', 'images', 'download', 'dns', 'api', 'app', 'stage',
+            'prod', 'sandbox', 'develop', 'dashboard', 'portal', 'intranet'
+        ]
+        
+        threads = int(input("Número de threads [50]: ") or "50")
+        
+        print(f"\n{Colors.BOLD}A enumerar subdomínios de {domain}...{Colors.END}")
+        print(f"Subdomínios a testar: {len(subdomains)}")
+        print()
+        
+        found = []
+        
+        def check_subdomain(sub):
+            full_domain = f"{sub}.{domain}"
+            try:
+                ip = socket.gethostbyname(full_domain)
+                print(f"{Colors.GREEN}[ENCONTRADO]{Colors.END} {full_domain} -> {ip}")
+                found.append({'subdomain': full_domain, 'ip': ip})
+                
+                # Verificar HTTP
+                try:
+                    r = requests.get(f"http://{full_domain}", timeout=3, verify=False)
+                    if r.status_code < 400:
+                        print(f"  {Colors.BLUE}→ HTTP ativo (status: {r.status_code}){Colors.END}")
+                except:
+                    pass
+                    
+            except:
+                pass
+        
+        with ThreadPoolExecutor(max_workers=threads) as executor:
+            futures = [executor.submit(check_subdomain, sub) for sub in subdomains]
+            for future in as_completed(futures):
+                pass
+        
+        print(f"\n{Colors.BOLD}{Colors.GREEN}ENUMERAÇÃO COMPLETA!{Colors.END}")
+        print(f"Subdomínios encontrados: {len(found)}")
+        
+        # Guardar resultados
+        self.save_report('subdomain_enum', {
+            'domain': domain,
+            'subdomains_found': found
+        })
+        
+        self.wait_for_enter()
+    # ==================== 4. XSS SCANNER ====================
+    
+    def xss_scanner(self):
+        """XSS Vulnerability Scanner"""
+        self.clear_screen()
+        print(f"{Colors.BOLD}{Colors.HEADER}⚠️  XSS VULNERABILITY SCANNER{Colors.END}")
+        print(f"{Colors.BLUE}{'='*60}{Colors.END}\n")
+        
+        if not BS4_AVAILABLE:
+            print(f"{Colors.RED}[-] BeautifulSoup não instalado. Instala com: pip install beautifulsoup4{Colors.END}")
+            self.wait_for_enter()
+            return
+        
+        target = self.get_target()
+        
+        print(f"{Colors.BOLD}A testar XSS em {target}...{Colors.END}")
+        
+        # Payloads XSS
+        payloads = [
+            ('<script>alert("XSS")</script>', 'Script básico'),
+            ('<img src=x onerror=alert("XSS")>', 'Image onerror'),
+            ('<svg onload=alert("XSS")>', 'SVG onload'),
+            ('"><script>alert("XSS")</script>', 'Breakout'),
+            ('\';alert("XSS");//', 'Semicolon'),
+            ('<ScRiPt>alert("XSS")</ScRiPt>', 'Case mix')
+        ]
+        
+        vulnerabilities = []
+        
+        try:
+            # Obter página
+            response = self.session.get(target, timeout=10, verify=False)
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # Encontrar formulários
+            forms = soup.find_all('form')
+            print(f"Formulários encontrados: {len(forms)}")
+            
+            for form in forms:
+                action = form.get('action', '')
+                method = form.get('method', 'get').lower()
+                form_url = urljoin(target, action)
+                
+                inputs = form.find_all(['input', 'textarea'])
+                input_names = [i.get('name') for i in inputs if i.get('name')]
+                
+                for payload, desc in payloads:
+                    data = {name: payload for name in input_names}
+                    
+                    try:
+                        if method == 'post':
+                            r = self.session.post(form_url, data=data, verify=False, timeout=5)
+                        else:
+                            r = self.session.get(form_url, params=data, verify=False, timeout=5)
+                        
+                        if payload in r.text:
+                            print(f"{Colors.RED}[XSS ENCONTRADO]{Colors.END} {desc}")
+                            print(f"  URL: {form_url}")
+                            print(f"  Payload: {payload}")
+                            vulnerabilities.append({
+                                'type': desc,
+                                'url': form_url,
+                                'payload': payload,
+                                'inputs': input_names
+                            })
+                            break
+                    except:
+                        pass
+            
+            # Testar parâmetros URL
+            if '?' in target:
+                base_url = target.split('?')[0]
+                params = target.split('?')[1].split('&')
+                
+                for param in params:
+                    if '=' in param:
+                        param_name = param.split('=')[0]
+                        
+                        for payload, desc in payloads:
+                            test_url = f"{base_url}?{param_name}={quote_plus(payload)}"
+                            try:
+                                r = self.session.get(test_url, verify=False, timeout=5)
+                                if payload in r.text:
+                                    print(f"{Colors.RED}[XSS ENCONTRADO]{Colors.END} {desc} no parâmetro {param_name}")
+                                    vulnerabilities.append({
+                                        'type': desc,
+                                        'url': test_url,
+                                        'payload': payload,
+                                        'parameter': param_name
+                                    })
+                                    break
+                            except:
+                                pass
+            
+            if not vulnerabilities:
+                print(f"{Colors.GREEN}[+] Nenhuma vulnerabilidade XSS encontrada{Colors.END}")
+            
+        except Exception as e:
+            print(f"{Colors.RED}[-] Erro: {e}{Colors.END}")
+        
+        # Guardar resultados
+        self.save_report('xss_scan', {
+            'target': target,
+            'vulnerabilities': vulnerabilities
+        })
+        
+        self.wait_for_enter()
+    # ==================== 5. SQL INJECTION TESTER ====================
+    
+    def sql_tester(self):
+        """SQL Injection Tester"""
+        self.clear_screen()
+        print(f"{Colors.BOLD}{Colors.HEADER}💉 SQL INJECTION TESTER{Colors.END}")
+        print(f"{Colors.BLUE}{'='*60}{Colors.END}\n")
+        
+        target = self.get_target()
+        
+        # Payloads SQLi
+        payloads = [
+            ("'", "Single quote"),
+            ("' OR '1'='1", "Boolean true"),
+            ("' OR '1'='1' --", "Boolean with comment"),
+            ("' UNION SELECT NULL--", "Union NULL"),
+            ("' AND SLEEP(5)--", "Time-based"),
+            ("admin' --", "Admin bypass")
+        ]
+        
+        print(f"{Colors.BOLD}A testar SQL Injection em {target}...{Colors.END}")
+        
+        vulnerabilities = []
+        
+        # Testar parâmetros URL
+        if '?' in target:
+            base_url = target.split('?')[0]
+            params = target.split('?')[1].split('&')
+            
+            for param in params:
+                if '=' in param:
+                    param_name = param.split('=')[0]
+                    original_value = param.split('=')[1]
+                    
+                    print(f"\nTestando parâmetro: {param_name}")
+                    
+                    for payload, desc in payloads:
+                        test_url = f"{base_url}?{param_name}={quote_plus(payload)}"
+                        
+                        try:
+                            # Teste normal
+                            r = self.session.get(test_url, verify=False, timeout=5)
+                            
+                            # Verificar erros SQL
+                            sql_errors = [
+                                "SQL syntax", "mysql_fetch", "ORA-", "PostgreSQL",
+                                "SQLite", "Unclosed quotation mark", "Microsoft OLE DB"
+                            ]
+                            
+                            for error in sql_errors:
+                                if error.lower() in r.text.lower():
+                                    print(f"{Colors.RED}[SQLi ENCONTRADO]{Colors.END} {desc}")
+                                    print(f"  URL: {test_url}")
+                                    print(f"  Evidence: {error}")
+                                    vulnerabilities.append({
+                                        'type': 'error_based',
+                                        'parameter': param_name,
+                                        'payload': payload,
+                                        'evidence': error
+                                    })
+                                    break
+                            
+                            # Teste time-based
+                            if "SLEEP" in payload or "WAITFOR" in payload:
+                                start = time.time()
+                                self.session.get(test_url, verify=False, timeout=10)
+                                elapsed = time.time() - start
+                                
+                                if elapsed >= 4:
+                                    print(f"{Colors.RED}[SQLi TIME-BASED]{Colors.END} {desc}")
+                                    print(f"  Response time: {elapsed:.2f}s")
+                                    vulnerabilities.append({
+                                        'type': 'time_based',
+                                        'parameter': param_name,
+                                        'payload': payload,
+                                        'response_time': elapsed
+                                    })
+                                    
+                        except:
+                            pass
+        
+        if not vulnerabilities:
+            print(f"{Colors.GREEN}[+] Nenhuma vulnerabilidade SQL encontrada{Colors.END}")
+        
+        # Guardar resultados
+        self.save_report('sql_injection', {
+            'target': target,
+            'vulnerabilities': vulnerabilities
+        })
+        
+        self.wait_for_enter()
+    # ==================== 6. SECURITY HEADERS ANALYZER ====================
+    
+    def security_headers(self):
+        """Security Headers Analyzer"""
+        self.clear_screen()
+        print(f"{Colors.BOLD}{Colors.HEADER}🛡️  SECURITY HEADERS ANALYZER{Colors.END}")
+        print(f"{Colors.BLUE}{'='*60}{Colors.END}\n")
+        
+        target = self.get_target()
+        
+        try:
+            response = self.session.get(target, timeout=10, verify=False)
+            headers = response.headers
+            
+            print(f"{Colors.BOLD}Cabeçalhos de Segurança:{Colors.END}\n")
+            
+            security_headers = {
+                'Strict-Transport-Security': 'Força HTTPS',
+                'Content-Security-Policy': 'Previne XSS',
+                'X-Frame-Options': 'Previne clickjacking',
+                'X-Content-Type-Options': 'Previne MIME sniffing',
+                'Referrer-Policy': 'Controla referrer',
+                'Permissions-Policy': 'Controla funcionalidades',
+                'X-XSS-Protection': 'Filtro XSS do browser',
+                'Cache-Control': 'Controla cache'
+            }
+            
+            present = []
+            missing = []
+            
+            for header, description in security_headers.items():
+                if header in headers:
+                    print(f"{Colors.GREEN}✓{Colors.END} {header}: {headers[header]}")
+                    print(f"  → {description}")
+                    present.append(header)
+                else:
+                    print(f"{Colors.RED}✗{Colors.END} {header}: AUSENTE")
+                    print(f"  → {description}")
+                    missing.append(header)
+                print()
+            
+            print(f"{Colors.BOLD}Resumo:{Colors.END}")
+            print(f"  Presentes: {len(present)}")
+            print(f"  Ausentes: {len(missing)}")
+            print(f"  Pontuação: {len(present)/len(security_headers)*100:.1f}%")
+            
+            # Guardar resultados
+            self.save_report('security_headers', {
+                'target': target,
+                'headers_present': {h: headers[h] for h in present},
+                'headers_missing': missing
+            })
+            
+        except Exception as e:
+            print(f"{Colors.RED}[-] Erro: {e}{Colors.END}")
+        
+        self.wait_for_enter()
+    # ==================== 7. WAF DETECTOR ====================
+    
+    def waf_detector(self):
+        """WAF Detector"""
+        self.clear_screen()
+        print(f"{Colors.BOLD}{Colors.HEADER}🔥 WAF DETECTOR{Colors.END}")
+        print(f"{Colors.BLUE}{'='*60}{Colors.END}\n")
+        
+        target = self.get_target()
+        
+        waf_signatures = {
+            'Cloudflare': ['cloudflare', '__cfduid'],
+            'AWS WAF': ['awselb', 'x-amzn-RequestId'],
+            'ModSecurity': ['mod_security', 'NOYB'],
+            'F5 BIG-IP': ['BigIP', 'F5'],
+            'Sucuri': ['Sucuri', 'cloudproxy'],
+            'Wordfence': ['wordfence'],
+            'Akamai': ['akamai'],
+            'Barracuda': ['barracuda'],
+            'Imperva': ['imperva', 'incapsula']
+        }
+        
+        print(f"{Colors.BOLD}A detetar WAF em {target}...{Colors.END}\n")
+        
+        detected = []
+        
+        try:
+            # Verificar headers
+            response = self.session.get(target, timeout=10, verify=False)
+            
+            for waf, signatures in waf_signatures.items():
+                for sig in signatures:
+                    # Verificar em headers
+                    for header, value in response.headers.items():
+                        if sig.lower() in header.lower() or sig.lower() in value.lower():
+                            print(f"{Colors.GREEN}[WAF DETECTADO]{Colors.END} {waf} (header: {header})")
+                            detected.append({'waf': waf, 'evidence': f'{header}: {value}', 'method': 'header'})
+                            break
+                    
+                    # Verificar em cookies
+                    for cookie in response.cookies:
+                        if sig.lower() in cookie.name.lower() or sig.lower() in cookie.value.lower():
+                            print(f"{Colors.GREEN}[WAF DETECTADO]{Colors.END} {waf} (cookie: {cookie.name})")
+                            detected.append({'waf': waf, 'evidence': f'cookie: {cookie.name}', 'method': 'cookie'})
+                            break
+            
+            # Teste com payload malicioso
+            test_payload = "' OR 1=1 --"
+            test_url = f"{target}?test={quote_plus(test_payload)}"
+            response2 = self.session.get(test_url, verify=False, timeout=5)
+            
+            if response2.status_code in [403, 406, 429, 503]:
+                print(f"{Colors.YELLOW}[!] Possível WAF detectado por bloqueio (status: {response2.status_code}){Colors.END}")
+                detected.append({'waf': 'Unknown', 'evidence': f'HTTP {response2.status_code}', 'method': 'blocking'})
+            
+            if not detected:
+                print(f"{Colors.YELLOW}[!] Nenhum WAF claramente identificado{Colors.END}")
+            
+        except Exception as e:
+            print(f"{Colors.RED}[-] Erro: {e}{Colors.END}")
+        
+        # Guardar resultados
+        self.save_report('waf_detector', {
+            'target': target,
+            'waf_detected': detected
+        })
+        
+        self.wait_for_enter()
+    # ==================== 8. SSL/TLS CHECKER ====================
+    
+    def ssl_checker(self):
+        """SSL/TLS Checker"""
+        self.clear_screen()
+        print(f"{Colors.BOLD}{Colors.HEADER}🔒 SSL/TLS CHECKER{Colors.END}")
+        print(f"{Colors.BLUE}{'='*60}{Colors.END}\n")
+        
+        target = self.get_target()
+        hostname = target.replace('http://', '').replace('https://', '').split('/')[0]
+        
+        print(f"{Colors.BOLD}A verificar SSL em {hostname}...{Colors.END}\n")
+        
+        try:
+            import ssl
+            import socket
+            from datetime import datetime
+            
+            context = ssl.create_default_context()
+            with socket.create_connection((hostname, 443), timeout=10) as sock:
+                with context.wrap_socket(sock, server_hostname=hostname) as ssock:
+                    cert = ssock.getpeercert()
+                    
+                    # Informações do certificado
+                    print(f"{Colors.GREEN}✓{Colors.END} Certificado SSL válido")
+                    
+                    # Emitente
+                    issuer = dict(x[0] for x in cert['issuer'])
+                    print(f"  Emitente: {issuer.get('organizationName', 'Desconhecido')}")
+                    
+                    # Sujeito
+                    subject = dict(x[0] for x in cert['subject'])
+                    print(f"  Domínio: {subject.get('commonName', 'Desconhecido')}")
+                    
+                    # Datas
+                    not_before = datetime.strptime(cert['notBefore'], '%b %d %H:%M:%S %Y %Z')
+                    not_after = datetime.strptime(cert['notAfter'], '%b %d %H:%M:%S %Y %Z')
+                    days_left = (not_after - datetime.now()).days
+                    
+                    print(f"  Válido de: {not_before}")
+                    print(f"  Válido até: {not_after}")
+                    print(f"  Dias restantes: {days_left}")
+                    
+                    # SANs
+                    sans = []
+                    for ext in cert.get('subjectAltName', []):
+                        if ext[0] == 'DNS':
+                            sans.append(ext[1])
+                    
+                    if sans:
+                        print(f"  SANs: {', '.join(sans[:5])}{'...' if len(sans) > 5 else ''}")
+                    
+                    # Versão TLS
+                    print(f"  Versão TLS: {ssock.version()}")
+                    
+                    # Cipher
+                    print(f"  Cipher: {ssock.cipher()[0]}")
+                    
+                    if days_left < 30:
+                        print(f"\n{Colors.YELLOW}⚠️  Certificado expira em breve!{Colors.END}")
+                    
+                    # Guardar resultados
+                    self.save_report('ssl_checker', {
+                        'hostname': hostname,
+                        'issuer': issuer.get('organizationName', ''),
+                        'subject': subject.get('commonName', ''),
+                        'valid_from': not_before.isoformat(),
+                        'valid_until': not_after.isoformat(),
+                        'days_left': days_left,
+                        'sans': sans,
+                        'tls_version': ssock.version(),
+                        'cipher': ssock.cipher()[0]
+                    })
+                    
+        except Exception as e:
+            print(f"{Colors.RED}[-] Erro: {e}{Colors.END}")
+            print(f"  O site pode não suportar HTTPS ou ter um certificado inválido.")
+        
+        self.wait_for_enter()
+    
+    # ==================== 9. WEB CRAWLER ====================
+    
+    def web_crawler(self):
+        """Web Crawler"""
+        self.clear_screen()
+        print(f"{Colors.BOLD}{Colors.HEADER}🕷️  WEB CRAWLER{Colors.END}")
+        print(f"{Colors.BLUE}{'='*60}{Colors.END}\n")
+        
+        if not BS4_AVAILABLE:
+            print(f"{Colors.RED}[-] BeautifulSoup não instalado. Instala com: pip install beautifulsoup4{Colors.END}")
+            self.wait_for_enter()
+            return
+        
+        target = self.get_target()
+        
+        max_pages = int(input("Número máximo de páginas a visitar [30]: ") or "30")
+        
+        print(f"\n{Colors.BOLD}A iniciar crawling em {target}...{Colors.END}")
+        print(f"Máximo de páginas: {max_pages}")
+        print()
+        
+        visited = set()
+        to_visit = [target]
+        pages = []
+        
+        try:
+            while to_visit and len(visited) < max_pages:
+                url = to_visit.pop(0)
+                if url in visited:
+                    continue
+                
+                try:
+                    print(f"{Colors.BLUE}[*]{Colors.END} Visitando: {url}")
+                    response = self.session.get(url, timeout=5, verify=False)
+                    visited.add(url)
+                    
+                    # Guardar info da página
+                    soup = BeautifulSoup(response.text, 'html.parser')
+                    title = soup.find('title')
+                    title_text = title.text.strip() if title else 'Sem título'
+                    
+                    pages.append({
+                        'url': url,
+                        'status': response.status_code,
+                        'title': title_text,
+                        'size': len(response.content)
+                    })
+                    
+                    # Encontrar links
+                    for link in soup.find_all('a', href=True):
+                        href = link['href']
+                        full_url = urljoin(url, href)
+                        
+                        if urlparse(full_url).netloc == urlparse(target).netloc:
+                            if full_url not in visited and full_url not in to_visit:
+                                to_visit.append(full_url)
+                    
+                    print(f"  Título: {title_text}")
+                    print(f"  Links encontrados: {len(to_visit)}")
+                    print()
+                    
+                except Exception as e:
+                    print(f"{Colors.YELLOW}[!] Erro em {url}: {e}{Colors.END}")
+            
+            print(f"{Colors.GREEN}[+] Crawling completo!{Colors.END}")
+            print(f"Páginas visitadas: {len(visited)}")
+            
+            # Guardar resultados
+            self.save_report('web_crawler', {
+                'target': target,
+                'pages_visited': list(visited),
+                'page_details': pages
+            })
+            
+        except Exception as e:
+            print(f"{Colors.RED}[-] Erro: {e}{Colors.END}")
+        
+        self.wait_for_enter()
+    # ==================== 10. RELATÓRIO COMPLETO ====================
+    
+    def full_report(self):
+        """Executa todas as ferramentas e gera relatório completo"""
+        self.clear_screen()
+        print(f"{Colors.BOLD}{Colors.HEADER}📊 RELATÓRIO COMPLETO{Colors.END}")
+        print(f"{Colors.BLUE}{'='*60}{Colors.END}\n")
+        
+        target = self.get_target()
+        self.resolve_target()
+        
+        print(f"{Colors.YELLOW}[!] Isto pode demorar alguns minutos...{Colors.END}\n")
+        
+        full_results = {
+            'target': target,
+            'target_ip': self.target_ip,
+            'timestamp': datetime.now().isoformat(),
+            'tools': {}
+        }
+        
+        # 1. Security Headers
+        print(f"\n{Colors.BOLD}1. Analisando Security Headers...{Colors.END}")
+        try:
+            response = self.session.get(target, timeout=10, verify=False)
+            headers = response.headers
+            security_headers = ['Strict-Transport-Security', 'Content-Security-Policy', 
+                               'X-Frame-Options', 'X-Content-Type-Options', 'X-XSS-Protection']
+            
+            present = [h for h in security_headers if h in headers]
+            full_results['tools']['security_headers'] = {
+                'present': present,
+                'missing': [h for h in security_headers if h not in headers],
+                'score': len(present)/len(security_headers)*100
+            }
+            print(f"{Colors.GREEN}  ✓ Headers analisados{Colors.END}")
+        except:
+            print(f"{Colors.RED}  ✗ Erro nos headers{Colors.END}")
+        
+        # 2. Port Scan (portas comuns)
+        print(f"\n{Colors.BOLD}2. Scan de portas comuns...{Colors.END}")
+        open_ports = []
+        common_ports = [21,22,23,25,53,80,110,111,135,139,143,443,445,993,995,3306,3389,5900,8080,8443]
+        
+        def check_port(port):
+            try:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.settimeout(1)
+                result = sock.connect_ex((self.target_ip, port))
+                if result == 0:
+                    open_ports.append(port)
+                sock.close()
+            except:
+                pass
+        
+        with ThreadPoolExecutor(max_workers=20) as executor:
+            executor.map(check_port, common_ports)
+        
+        full_results['tools']['port_scan'] = {'open_ports': open_ports}
+        print(f"{Colors.GREEN}  ✓ Portas abertas: {len(open_ports)}{Colors.END}")
+        
+        # 3. WAF Detection
+        print(f"\n{Colors.BOLD}3. Detectando WAF...{Colors.END}")
+        waf_detected = []
+        try:
+            response = self.session.get(target, timeout=10, verify=False)
+            waf_signatures = {'Cloudflare': '__cfduid', 'AWS': 'awselb', 'F5': 'BigIP'}
+            
+            for waf, sig in waf_signatures.items():
+                for cookie in response.cookies:
+                    if sig in cookie.name:
+                        waf_detected.append(waf)
+                        break
+            
+            full_results['tools']['waf_detection'] = {'waf_detected': waf_detected}
+            print(f"{Colors.GREEN}  ✓ WAF: {waf_detected if waf_detected else 'Nenhum detectado'}{Colors.END}")
+        except:
+            print(f"{Colors.RED}  ✗ Erro no WAF{Colors.END}")
+        
+        # 4. SSL Info (se HTTPS)
+        print(f"\n{Colors.BOLD}4. Verificando SSL...{Colors.END}")
+        if target.startswith('https://'):
+            try:
+                import ssl
+                hostname = target.replace('https://', '').split('/')[0]
+                context = ssl.create_default_context()
+                with socket.create_connection((hostname, 443), timeout=5) as sock:
+                    with context.wrap_socket(sock, server_hostname=hostname) as ssock:
+                        cert = ssock.getpeercert()
+                        full_results['tools']['ssl_info'] = {
+                            'tls_version': ssock.version(),
+                            'cipher': ssock.cipher()[0]
+                        }
+                print(f"{Colors.GREEN}  ✓ SSL OK{Colors.END}")
+            except:
+                print(f"{Colors.RED}  ✗ Erro SSL{Colors.END}")
+        
+        # Guardar relatório completo
+        filename = self.save_report('complete_scan', full_results)
+        
+        print(f"\n{Colors.GREEN}{Colors.BOLD}RELATÓRIO COMPLETO GERADO!{Colors.END}")
+        print(f"Ficheiro: {filename}")
+        
+        # Mostrar resumo
+        print(f"\n{Colors.BOLD}Resumo:{Colors.END}")
+        print(f"  Target: {target}")
+        print(f"  IP: {self.target_ip}")
+        print(f"  Portas abertas: {len(open_ports)}")
+        print(f"  WAF: {waf_detected[0] if waf_detected else 'Não detectado'}")
+        
+        self.wait_for_enter()
+    
+    # ==================== 11. CONFIGURAÇÕES ====================
+    
+    def settings(self):
+        """Configurações da aplicação"""
+        self.clear_screen()
+        print(f"{Colors.BOLD}{Colors.HEADER}⚙️  CONFIGURAÇÕES{Colors.END}")
+        print(f"{Colors.BLUE}{'='*60}{Colors.END}\n")
+        
+        print(f"{Colors.BOLD}Configurações atuais:{Colors.END}")
+        print(f"  Target: {self.target or 'Não definido'}")
+        print(f"  User-Agent: {self.session.headers['User-Agent']}")
+        print()
+        
+        print("1. Definir/alterar target")
+        print("2. Alterar User-Agent")
+        print("3. Adicionar cookie de sessão")
+        print("4. Verificar dependências")
+        print("5. Voltar")
+        
+        choice = input(f"\n{Colors.YELLOW}Escolhe uma opção: {Colors.END}").strip()
+        
+        if choice == '1':
+            self.target = input("Novo target: ").strip()
+            print(f"{Colors.GREEN}Target atualizado!{Colors.END}")
+        elif choice == '2':
+            ua = input("Novo User-Agent: ").strip()
+            self.session.headers.update({'User-Agent': ua})
+            print(f"{Colors.GREEN}User-Agent atualizado!{Colors.END}")
+        elif choice == '3':
+            cookie = input("Cookie (nome=valor): ").strip()
+            self.session.headers.update({'Cookie': cookie})
+            print(f"{Colors.GREEN}Cookie adicionado!{Colors.END}")
+        elif choice == '4':
+            self.check_dependencies()
+        
+        self.wait_for_enter()
+    
+    def check_dependencies(self):
+        """Verifica dependências instaladas"""
+        print(f"\n{Colors.BOLD}Verificando dependências:{Colors.END}")
+        
+        deps = [
+            ('requests', 'requests'),
+            ('BeautifulSoup', 'bs4'),
+            ('dnspython', 'dns'),
+        ]
+        
+        for name, module in deps:
+            try:
+                __import__(module)
+                print(f"{Colors.GREEN}✓{Colors.END} {name} instalado")
+            except ImportError:
+                print(f"{Colors.RED}✗{Colors.END} {name} NÃO instalado")
+                print(f"  Instala com: pip install {name.lower()}")
+    # ==================== MENU PRINCIPAL ====================
+    
+    def run(self):
+        """Executa o menu principal"""
+        while True:
+            self.clear_screen()
+            self.print_banner()
+            print(self.print_menu())
+            
+            choice = input().strip()
+            
+            if choice == '1':
+                self.port_scanner()
+            elif choice == '2':
+                self.directory_bruteforcer()
+            elif choice == '3':
+                self.subdomain_enumerator()
+            elif choice == '4':
+                self.xss_scanner()
+            elif choice == '5':
+                self.sql_tester()
+            elif choice == '6':
+                self.security_headers()
+            elif choice == '7':
+                self.waf_detector()
+            elif choice == '8':
+                self.ssl_checker()
+            elif choice == '9':
+                self.web_crawler()
+            elif choice == '10':
+                self.full_report()
+            elif choice == '11':
+                self.settings()
+            elif choice == '0':
+                print(f"\n{Colors.GREEN}A sair... Até à próxima!{Colors.END}")
+                sys.exit(0)
+            else:
+                print(f"{Colors.RED}Opção inválida!{Colors.END}")
+                time.sleep(1)
+
+def main():
+    """Função principal"""
+    
+    # Verificar Python version
+    if sys.version_info < (3, 6):
+        print(f"{Colors.RED}Python 3.6 ou superior é necessário!{Colors.END}")
+        sys.exit(1)
+    
+    # Aviso legal
+    print(f"{Colors.RED}{Colors.BOLD}")
+    print("="*60)
+    print("AVISO LEGAL: Esta ferramenta é apenas para fins educacionais!")
+    print("Use apenas em sistemas que possui ou tem permissão explícita!")
+    print("O uso não autorizado é ilegal e antiético.")
+    print("="*60)
+    print(f"{Colors.END}")
+    
+    confirm = input("\nConfirmas que tens permissão para testar os alvos? (s/n): ")
+    if confirm.lower() not in ['s', 'sim', 'yes', 'y']:
+        print("Programa terminado.")
+        sys.exit(0)
+    
+    # Iniciar suite
+    suite = SecuritySuite()
+    
+    try:
+        suite.run()
+    except KeyboardInterrupt:
+        print(f"\n\n{Colors.YELLOW}Programa interrompido pelo utilizador.{Colors.END}")
+        sys.exit(0)
+
+if __name__ == "__main__":
+    main()
