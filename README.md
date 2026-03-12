@@ -1,256 +1,249 @@
-Security Tools Suite
-Versão: 3.0
-Python: 3.6 ou superior
+SECURITY TOOLS SUITE
+Version: 3.0
+Python: 3.6+
+Author: Rodrigo Gomes
 
-AVISO LEGAL
-Esta ferramenta é apenas para fins educacionais e testes de segurança autorizados.
+LEGAL DISCLAIMER
+THIS TOOL IS FOR EDUCATIONAL PURPOSES AND AUTHORIZED SECURITY TESTING ONLY.
 
-O uso não autorizado desta ferramenta em sistemas que não possui ou sem permissão explícita é ilegal e antiético. O utilizador é o único responsável por garantir que tem permissão para testar os alvos.
+UNAUTHORIZED USE OF THIS TOOL ON SYSTEMS YOU DO NOT OWN OR WITHOUT EXPLICIT PERMISSION IS ILLEGAL AND UNETHICAL. THE USER IS SOLELY RESPONSIBLE FOR ENSURING THEY HAVE PERMISSION TO TEST THEIR TARGETS.
 
-Sobre o Projeto
-O Security Tools Suite é uma ferramenta completa de testes de segurança desenvolvida em Python, que reúne diversas funcionalidades para análise e auditoria de websites e aplicações web. Foi criada como projeto de estudo para compreender melhor as vulnerabilidades comuns e técnicas de teste de penetração.
+TABLE OF CONTENTS
+About
 
-Funcionalidades
-1. Port Scanner Profissional
-Scan de portas TCP com múltiplas threads
+Features
 
-Deteção de serviços em portas abertas
+Installation
 
-Configurável (portas, timeout, threads)
+Quick Start Guide
 
-Resolução de domínios para IP
+Detailed Tool Documentation
 
-2. Directory Bruteforcer
-Descoberta de diretórios e ficheiros
+Configuration
 
-Suporte para múltiplas extensões (php, asp, txt, bak, etc.)
+Output & Reports
 
-Multi-threading para maior velocidade
+Dependencies
 
-Deteção de redirecionamentos e acessos restritos
+Limitations
 
-3. Subdomain Enumerator
-Enumeração de subdomínios através de wordlist
+Customization
 
-Resolução DNS para confirmação
+Contributing
 
-Verificação de serviços HTTP ativos
+License
 
-Wordlist abrangente de subdomínios comuns
+Resources
 
-4. XSS Vulnerability Scanner
-Testes de Cross-Site Scripting (XSS)
+Support
 
-Múltiplos payloads de teste
+ABOUT
+The Security Tools Suite is a comprehensive security testing framework written in Python. It combines multiple common web application auditing and reconnaissance tools into a single, menu-driven interface. This project was created as a learning tool to understand various web vulnerabilities and penetration testing techniques.
 
-Análise de formulários automaticamente
+FEATURES
+The suite includes 11 core tools:
 
-Testes em parâmetros URL
+Port Scanner - Multi-threaded TCP port scanning with service detection.
 
-5. SQL Injection Tester
-Testes de injeção SQL (error-based, time-based)
+Directory Bruteforcer - Discovers hidden directories and files using a wordlist.
 
-Payloads para diferentes tipos de SQLi
+Subdomain Enumerator - Finds subdomains via DNS resolution.
 
-Deteção de erros SQL em respostas
+XSS Scanner - Tests for Cross-Site Scripting vulnerabilities in forms and URLs.
 
-Testes de bypass de autenticação
+SQL Injection Tester - Detects SQL injection flaws using error-based and time-based payloads.
 
-6. Security Headers Analyzer
-Análise de cabeçalhos de segurança
+Security Headers Analyzer - Checks for the presence of important HTTP security headers.
 
-Verificação de: HSTS, CSP, X-Frame-Options, etc.
+WAF Detector - Identifies Web Application Firewalls based on headers and cookies.
 
-Pontuação de segurança
+SSL/TLS Checker - Examines SSL certificates for validity, issuer, and expiration.
 
-Recomendações para headers ausentes
+Web Crawler - Discovers and maps internal links of a website.
 
-7. WAF Detector
-Identificação de Web Application Firewalls
+Full Report - Runs all tools sequentially and generates a consolidated JSON report.
 
-Deteção por headers e cookies
+Settings - Configure global target, User-Agent, and session cookies.
 
-Reconhecimento de: Cloudflare, AWS WAF, ModSecurity, F5, Sucuri, etc.
+INSTALLATION
+Prerequisites
+Python 3.6 or higher
 
-Testes com payloads maliciosos para confirmação
+pip (Python package installer)
 
-8. SSL/TLS Checker
-Verificação de certificados SSL
-
-Informações de emissor e validade
-
-Dias restantes até expiração
-
-Versão TLS e cipher em uso
-
-Subject Alternative Names (SANs)
-
-9. Web Crawler
-Crawling automático de websites
-
-Extração de títulos e informações de páginas
-
-Limite configurável de páginas
-
-Descoberta de links internos
-
-10. Relatório Completo
-Execução automática de todas as ferramentas
-
-Relatório consolidado em JSON
-
-Resumo executivo dos resultados
-
-Ideal para auditorias rápidas
-
-11. Configurações
-Definição de target global
-
-Configuração de User-Agent
-
-Adição de cookies de sessão
-
-Verificação de dependências
-
-Instalação
-Pré-requisitos
-Python 3.6 ou superior
-
-pip (gerenciador de pacotes Python)
-
-Passos de Instalação
-Clonar o repositório
+Steps
+Clone the repository
 
 bash
-git clone https://github.com/seu-usuario/security-tools-suite.git
+git clone https://github.com/your-username/security-tools-suite.git
 cd security-tools-suite
-Instalar dependências
+Install dependencies
 
 bash
 pip install requests beautifulsoup4 urllib3
-Executar a ferramenta
+Run the tool
 
 bash
 python3 security_suite.py
-Como Usar
-Iniciar a ferramenta
+QUICK START GUIDE
+Launch the tool: python3 security_suite.py
 
-bash
-python3 security_suite.py
-Confirmar o aviso legal
+Confirm the legal warning by typing 'y' when prompted.
 
-A ferramenta pedirá confirmação de que tem permissão para testar o alvo
+Select a tool from the main menu by entering its corresponding number (0-11).
 
-Navegar pelo menu
+Enter your target (e.g., example.com or http://example.com). The tool will add http:// if no protocol is specified.
 
-Escolha uma opção de 0 a 11
+Configure any tool-specific options (like port ranges or thread counts) when asked.
 
-Configure o target quando solicitado
+Review the results displayed in the terminal. A JSON report will also be saved automatically.
 
-Ajuste parâmetros conforme necessário
+DETAILED TOOL DOCUMENTATION
+1. Port Scanner
+Description: Scans a range of TCP ports on a target IP or domain to find open ports and identify running services.
 
-Analisar resultados
+Configuration: Port range (start-end), number of threads, connection timeout.
 
-Resultados são mostrados em tempo real no terminal
+Output: List of open ports with their guessed service names. Saves a report with target IP and scan duration.
 
-Relatórios são guardados em formato JSON com timestamp
+2. Directory Bruteforcer
+Description: Attempts to discover hidden web directories and files by requesting common paths from a built-in wordlist. It also tests for files with various extensions.
 
-Use a opção 10 para um relatório completo
+Configuration: Number of threads, file extensions to test (e.g., php, asp, txt).
 
-Exemplo de Uso Rápido
-text
-1. Escolha a opção 1 (Port Scanner)
-2. Introduza o target (ex: exemplo.com)
-3. Configure portas (ex: 1-1024)
-4. Aguarde o scan
-5. Veja as portas abertas encontradas
-Estrutura dos Relatórios
-Os relatórios são guardados em formato JSON com a seguinte estrutura:
+Output: List of discovered URLs with their HTTP status codes and any redirect locations.
 
-json
-{
-    "tool": "nome_da_ferramenta",
-    "target": "alvo_testado",
-    "timestamp": "20240101_120000",
-    "data": {
-        "resultados_específicos": "valores"
-    }
-}
-Dependências
-requests - Requisições HTTP
+3. Subdomain Enumerator
+Description: Tries to find subdomains for a given domain by prepending common words (e.g., 'www', 'mail', 'admin') and checking if they resolve via DNS. It also attempts a basic HTTP connection to see if the subdomain is live.
 
-beautifulsoup4 - Parsing de HTML (opcional para algumas funcionalidades)
+Configuration: Number of threads.
 
-urllib3 - Cliente HTTP com suporte a SSL
+Output: List of found subdomains and their resolved IP addresses.
 
-Funcionalidades por Ferramenta
-Ferramenta	Descrição	Dependências
-Port Scanner	Scan TCP multi-thread	socket
-Directory Bruteforcer	Descoberta de diretórios	requests
-Subdomain Enumerator	Enumeração de subdomínios	socket, requests
-XSS Scanner	Testes de XSS	requests, bs4
-SQL Tester	Testes de SQLi	requests
-Security Headers	Análise de headers	requests
-WAF Detector	Identificação de WAF	requests
-SSL Checker	Verificação SSL	ssl, socket
-Web Crawler	Crawling de sites	requests, bs4
-Limitações e Considerações
-Algumas funcionalidades requerem BeautifulSoup4 (instalação opcional)
+4. XSS Vulnerability Scanner
+Description: Injects common XSS payloads into forms and URL parameters of the target page. It then checks if the payload is reflected in the server's response.
 
-O scanner não é tão rápido quanto ferramentas profissionais como Nmap
+Requirement: BeautifulSoup4 must be installed.
 
-Wordlists são limitadas (para uso educacional)
+Output: List of potential XSS vulnerabilities, including the vulnerable URL, parameter/form, and the payload used.
 
-Pode gerar falsos positivos em alguns casos
+5. SQL Injection Tester
+Description: Tests URL parameters for SQL injection vulnerabilities. It uses error-based payloads to look for database error messages in the response and time-based payloads to detect potential blind SQLi by measuring response delays.
 
-Personalização
-Adicionar Wordlists Próprias
-Pode modificar as wordlists nas funções correspondentes:
+Output: List of potentially vulnerable parameters, including the type of vulnerability (error-based, time-based) and the evidence found.
 
-directory_bruteforcer() - wordlist de diretórios
+6. Security Headers Analyzer
+Description: Analyzes the HTTP response headers of the target and checks for the presence of important security headers like Strict-Transport-Security, Content-Security-Policy, X-Frame-Options, and others.
 
-subdomain_enumerator() - wordlist de subdomínios
+Output: A table showing which security headers are present and their values, and which are missing. Provides a simple security score.
 
-Configurar Headers Personalizados
-Use a opção 11 (Configurações) para:
+7. WAF Detector
+Description: Attempts to identify if a Web Application Firewall is protecting the target. It analyzes response headers and cookies for known WAF signatures. It also sends a malicious payload to see if the request is blocked.
 
-Alterar User-Agent
+Output: Name of the detected WAF (e.g., Cloudflare, AWS WAF) or a message indicating no WAF was clearly identified.
 
-Adicionar cookies de sessão
+8. SSL/TLS Checker
+Description: Connects to the target over HTTPS, retrieves the SSL certificate, and displays detailed information. This includes the issuer, subject, validity period, days until expiration, Subject Alternative Names (SANs), TLS version, and the cipher suite in use.
 
-Contribuições
-Contribuições são bem-vindas. Áreas onde pode ajudar:
+Output: A detailed breakdown of the SSL/TLS configuration.
 
-Adicionar mais payloads de teste
+9. Web Crawler
+Description: Recursively visits pages on the target website, starting from the given URL. It extracts links from each page and continues crawling until a set page limit is reached.
 
-Expandir wordlists
+Requirement: BeautifulSoup4 must be installed.
 
-Melhorar deteção de vulnerabilidades
+Configuration: Maximum number of pages to crawl.
 
-Adicionar novas ferramentas
+Output: A list of all visited pages, along with their page titles, HTTP status, and content size.
 
-Corrigir bugs
+10. Full Report
+Description: Executes a subset of the tools (Security Headers, Port Scan on common ports, WAF Detection, and SSL Checker) automatically and compiles the results into a single, comprehensive JSON report.
 
-Melhorar documentação
+Output: A single JSON file containing the results from all the executed tools, providing a quick overview of the target's security posture.
 
-Licença
-Este projeto está licenciado sob a licença MIT - veja o ficheiro LICENSE para detalhes.
+11. Settings
+Description: Allows you to configure global settings for the current session.
 
-Características Técnicas
-Multi-threading para maior performance
+Options:
 
-Código modular fácil de estender
+Set or change the global target.
 
-Interface colorida para melhor visualização
+Change the User-Agent string used in HTTP requests.
 
-Relatórios JSON para integração com outras ferramentas
+Add a session cookie (e.g., PHPSESSID=value).
 
-Tratamento de erros robusto
+Check which Python dependencies are installed.
 
-Configurável para diferentes cenários
+CONFIGURATION
+The suite can be configured in two ways:
 
-Recursos Educacionais
-Para aprender mais sobre segurança web:
+Per-Tool Prompts: Most tools will ask you for specific parameters (e.g., port range, thread count) when you run them.
+
+Global Settings (Option 11): You can set a persistent target, User-Agent, or session cookie that will be used across all tools for the duration of the session.
+
+OUTPUT & REPORTS
+All scan results are saved automatically in the current working directory.
+
+Format: JSON
+
+Naming Convention: {tool_name}_{YYYYMMDD_HHMMSS}.json
+
+Example: port_scan_20231027_143022.json
+
+The JSON report contains metadata about the scan (tool, target, timestamp) and the specific results from the tool.
+
+DEPENDENCIES
+Library	Required For	Installation Command
+requests	All HTTP-based tools (2-7, 9, 10)	pip install requests
+beautifulsoup4	XSS Scanner, Web Crawler (optional tools)	pip install beautifulsoup4
+urllib3	Used by requests for HTTP/SSL handling	(Installed with requests)
+LIMITATIONS
+Speed: The multi-threading is basic and may not be as fast as professional tools like Nmap or ffuf.
+
+Wordlists: The built-in wordlists for directories and subdomains are relatively small and intended for educational use.
+
+False Positives: The XSS and SQLi scanners may produce false positives. Manual verification is always required.
+
+Rate Limiting: The tool does not implement rate limiting, which could trigger WAF blocks or DoS protections on the target site.
+
+CUSTOMIZATION
+Adding Your Own Wordlists
+You can easily replace the built-in wordlists in the code:
+
+For Directory Bruteforcer: Modify the wordlist list inside the directory_bruteforcer function.
+
+For Subdomain Enumerator: Modify the subdomains list inside the subdomain_enumerator function.
+
+Modifying Payloads
+XSS Payloads: Edit the payloads list in the xss_scanner function.
+
+SQLi Payloads: Edit the payloads list in the sql_tester function.
+
+Changing HTTP Headers
+Use the Settings menu (option 11) to change the User-Agent or add cookies for authenticated scanning.
+
+CONTRIBUTING
+Contributions are welcome. Areas for improvement include:
+
+Adding more comprehensive and varied payloads for XSS and SQLi.
+
+Expanding the built-in wordlists.
+
+Improving the accuracy of vulnerability detection.
+
+Adding new tools (e.g., CORS checker, open redirect tester).
+
+Bug fixes and code optimization.
+
+Enhancing documentation.
+
+To contribute, please fork the repository, make your changes, and submit a pull request.
+
+LICENSE
+This project is licensed under the MIT License. See the LICENSE file for more details.
+
+RESOURCES
+To learn more about web security:
 
 OWASP Top 10
 
@@ -260,25 +253,12 @@ Hack The Box
 
 TryHackMe
 
-Problemas Conhecidos
-O SSL Checker pode falhar com certificados auto-assinados
+SUPPORT
+For questions, suggestions, or to report bugs:
 
-Alguns sites podem bloquear o scanner por excesso de requisições
+Open an issue on the GitHub repository.
 
-O Web Crawler pode entrar em loops em sites mal configurados
+Submit a pull request with your proposed changes.
 
-Suporte
-Para questões, sugestões ou relatórios de bugs:
+REMEMBER: This tool is a powerful educational resource. Use it responsibly, ethically, and only on systems you are authorized to test.
 
-Abra uma issue no GitHub
-
-Envie um pull request com melhorias
-
-Autor
-Cybersecurity Student
-
-Projeto educacional para aprendizagem de segurança ofensiva
-
-Uso exclusivamente para estudo e testes autorizados
-
-Lembre-se sempre: Com grandes poderes vêm grandes responsabilidades. Use esta ferramenta com ética e apenas em sistemas que possui ou tem permissão para testar.
